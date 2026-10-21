@@ -3,76 +3,412 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Đua Vịt 🦆🏁</title>
+    <title>Đua Vịt Vườn Trại Hoang Dã 🦆🌾</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f0f8ff; margin: 20px; }
-        #track { width: 80%; max-width: 800px; margin: 20px auto; background: #e0f7fa; border: 3px solid #00acc1; border-radius: 10px; padding: 10px; position: relative; }
-        .lane { height: 60px; border-bottom: 2px dashed #b2ebf2; position: relative; display: flex; align-items: center; }
-        .lane:last-child { border-bottom: none; }
-        .duck { position: absolute; left: 0; font-size: 35px; transition: left 0.1s linear; user-select: none; }
-        .finish-line { position: absolute; right: 20px; top: 0; bottom: 0; width: 10px; background: repeating-linear-gradient(0deg, #000, #000 10px, #fff 10px, #fff 20px); }
-        button { padding: 12px 24px; font-size: 18px; background-color: #ffb74d; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        button:hover { background-color: #ffa726; }
-        #result { margin-top: 20px; font-size: 22px; font-weight: bold; color: #d84315; }
+        :root {
+            --primary: #2e7d32;
+            --accent: #ff8f00;
+            --bg-dark: #1b5e20;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1b5e20, #388e3c);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 2.2rem;
+            text-align: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .config-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .config-panel { grid-template-columns: 1fr; }
+        }
+        .control-group {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #a5d6a7;
+        }
+        input[type="range"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #4caf50;
+            color: white;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        textarea {
+            width: 100%;
+            height: 90px;
+            padding: 8px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #4caf50;
+            color: white;
+            border-radius: 5px;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .btn-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        button {
+            background: linear-gradient(135deg, #ffa726, #fb8c00);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.6);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        #canvas-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 3px solid #8d6e63;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: #2e7d32;
+        }
+        /* Modal Thông Báo Thắng Cuộc */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+            border: 4px solid #ffd54f;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 0 50px rgba(255, 213, 79, 0.5);
+            animation: scaleUp 0.3s ease;
+        }
+        .modal-content h2 {
+            color: #ffd54f;
+            font-size: 2.2rem;
+            margin-top: 0;
+            text-shadow: 2px 2px 0px #000;
+        }
+        .winner-trophy {
+            font-size: 70px;
+            margin: 10px 0;
+            animation: bounce 1s infinite alternate;
+        }
+        .winner-name {
+            font-size: 26px;
+            font-weight: bold;
+            color: #fff;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px dashed #ffd54f;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleUp { from { transform: scale(0.8); } to { transform: scale(1); } }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
     </style>
 </head>
 <body>
 
-    <h1>🦆 Game Đua Vịt 🏁</h1>
-    <p>Bấm nút bắt đầu để xem chú vịt nào về đích trước nhé!</p>
+    <h1>🦆 Đua Vịt Vườn Trại Hoang Dã 🌾</h1>
     
-    <button id="startBtn" onclick="startRace()">Bắt đầu đua!</button>
-    
-    <div id="track">
-        <div class="finish-line"></div>
-        <div class="lane"><span class="duck" id="duck1">🦆1️⃣</span></div>
-        <div class="lane"><span class="duck" id="duck2">🦆2️⃣</span></div>
-        <div class="lane"><span class="duck" id="duck3">🦆3️⃣</span></div>
-        <div class="lane"><span class="duck" id="duck4">🦆4️⃣</span></div>
+    <div class="container">
+        <div class="config-panel" id="setupPanel">
+            <div class="control-group">
+                <label for="duckCount">Số lượng vịt (Tối đa 50): <span id="countVal">8</span></label>
+                <input type="range" id="duckCount" min="2" max="50" value="8" oninput="updateDuckCount(this.value)">
+            </div>
+            <div class="control-group">
+                <label for="duckNames">Tên các con vịt (Mỗi dòng hoặc cách nhau bằng dấu phẩy):</label>
+                <textarea id="duckNames" placeholder="Vịt 1, Vịt 2, Vịt 3...">Vịt Siêu Tốc, Vịt Đần, Vịt Đại Gia, Vịt Bầu, Vịt Xiêm, Vịt Cỏ, Vịt Mập, Vịt Lẹt Đẹt</textarea>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button id="startBtn" onclick="startRace()">🏁 BẮT ĐẦU ĐUA NGAY!</button>
+        </div>
+
+        <div id="canvas-wrapper">
+            <canvas id="raceCanvas" width="1000" height="500"></canvas>
+        </div>
     </div>
 
-    <div id="result"></div>
+    <!-- Modal Chiến Thắng -->
+    <div id="modal">
+        <div class="modal-content">
+            <h2>🏆 VINH DANH QUÁN QUÂN 🏆</h2>
+            <div class="winner-trophy">🦆🥇</div>
+            <div class="winner-name" id="winnerText">Đang cập nhật...</div>
+            <p style="color: #c8e6c9;">Đã xuất sắc vượt qua các đối thủ để về đích đầu tiên trong khu rừng hoang dã!</p>
+            <button onclick="closeModal()">Đua Lại Vòng Khác</button>
+        </div>
+    </div>
 
     <script>
-        function startRace() {
-            const ducks = [
-                { id: 'duck1', name: 'Vịt 1', pos: 0 },
-                { id: 'duck2', name: 'Vịt 2', pos: 0 },
-                { id: 'duck3', name: 'Vịt 3', pos: 0 },
-                { id: 'duck4', name: 'Vịt 4', pos: 0 }
-            ];
+        const canvas = document.getElementById('raceCanvas');
+        const ctx = canvas.getContext('2d');
 
-            const startBtn = document.getElementById('startBtn');
-            const resultDiv = document.getElementById('result');
+        let ducks = [];
+        let isRacing = false;
+        let animationFrameId;
+        const finishLineX = 920;
+
+        // Tạo khung nền vườn trại hoang dã tĩnh ban đầu
+        function drawBackground() {
+            // Bầu trời hoàng hôn/thiên nhiên
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGrad.addColorStop(0, '#81d4fa');
+            skyGrad.addColorStop(1, '#c8e6c9');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Đồi núi phía xa
+            ctx.fillStyle = '#4caf50';
+            ctx.beginPath();
+            ctx.moveTo(0, 100);
+            ctx.bezierCurveTo(250, 40, 500, 140, 1000, 80);
+            ctx.lineTo(1000, 0);
+            ctx.lineTo(0, 0);
+            ctx.fill();
+
+            ctx.fillStyle = '#388e3c';
+            ctx.beginPath();
+            ctx.moveTo(0, 140);
+            ctx.bezierCurveTo(300, 80, 700, 160, 1000, 100);
+            ctx.lineTo(1000, 0);
+            ctx.lineTo(0, 0);
+            ctx.fill();
+        }
+
+        function updateDuckCount(val) {
+            document.getElementById('countVal').innerText = val;
+            let currentNames = document.getElementById('duckNames').value.split(/,|\n/).map(s => s.trim()).filter(s => s.length > 0);
+            let newNames = [];
+            for (let i = 0; i < val; i++) {
+                if (currentNames[i]) {
+                    newNames.push(currentNames[i]);
+                } else {
+                    newNames.push(`Vịt ${i + 1}`);
+                }
+            }
+            document.getElementById('duckNames').value = newNames.join(', ');
+            initDucks();
+        }
+
+        function initDucks() {
+            let nameInput = document.getElementById('duckNames').value;
+            let names = nameInput.split(/,|\n/).map(s => s.trim()).filter(s => s.length > 0);
+            let count = parseInt(document.getElementById('duckCount').value);
             
-            startBtn.disabled = true;
-            resultDiv.innerHTML = 'Đang đua... 🏁';
+            if (names.length === 0) {
+                names = ['Vịt 1', 'Vịt 2'];
+            }
 
-            // Reset vị trí
-            ducks.forEach(d => {
-                document.getElementById(d.id).style.left = '0px';
+            ducks = [];
+            let laneHeight = canvas.height / count;
+
+            for (let i = 0; i < count; i++) {
+                let name = names[i] || `Vịt ${i + 1}`;
+                ducks.push({
+                    id: i,
+                    name: name,
+                    x: 30,
+                    y: (i * laneHeight) + (laneHeight / 2),
+                    speed: 0,
+                    maxSpeed: Math.random() * 2.5 + 4.5,
+                    stamina: Math.random() * 0.8 + 0.6,
+                    finished: false,
+                    finishRank: 0
+                });
+            }
+            drawScene();
+        }
+
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+
+            let count = ducks.length;
+            let laneHeight = canvas.height / count;
+
+            // Vẽ các làn đường phong cách hoang dã (đất cát, cỏ ven đường, hàng rào)
+            for (let i = 0; i < count; i++) {
+                let y = i * laneHeight;
+
+                // Nền làn đường (đất pha cỏ)
+                ctx.fillStyle = (i % 2 === 0) ? 'rgba(121, 85, 72, 0.35)' : 'rgba(93, 64, 55, 0.35)';
+                ctx.fillRect(0, y, canvas.width, laneHeight);
+
+                // Đường phân cách cỏ
+                ctx.strokeStyle = 'rgba(76, 175, 80, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, y + laneHeight);
+                ctx.lineTo(canvas.width, y + laneHeight);
+                ctx.stroke();
+            }
+
+            // Vẽ vạch đích (Kẻ sọc trắng đen rực rỡ)
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 10;
+            let stripeSize = 15;
+            for (let yPos = 0; yPos < canvas.height; yPos += stripeSize) {
+                ctx.fillStyle = (Math.floor(yPos / stripeSize) % 2 === 0) ? '#fff' : '#111';
+                ctx.fillRect(finishLineX, yPos, 12, stripeSize);
+            }
+            // Biển báo "FINISH"
+            ctx.fillStyle = '#ff5722';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('🏁 ĐÍCH', finishLineX - 15, 20);
+            ctx.restore();
+
+            // Vẽ các chú vịt và tên
+            ducks.forEach(duck => {
+                // Vẽ tên vịt
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 13px sans-serif';
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                ctx.shadowBlur = 4;
+                ctx.fillText(duck.name, duck.x - 5, duck.y - 14);
+
+                // Vẽ Emoji Vịt 🦆
+                ctx.font = '28px sans-serif';
+                ctx.fillText('🦆', duck.x, duck.y + 8);
+                ctx.shadowBlur = 0; // reset shadow
             });
+        }
 
-            const finishPos = document.getElementById('track').clientWidth - 70;
-            let winner = null;
+        function startRace() {
+            if (isRacing) return;
+            initDucks();
+            isRacing = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('setupPanel').style.opacity = '0.5';
+            document.getElementById('setupPanel').style.pointerEvents = 'none';
 
-            const interval = setInterval(() => {
-                ducks.forEach(d => {
-                    if (!winner) {
-                        // Tăng tốc độ ngẫu nhiên
-                        d.pos += Math.random() * 8 + 2;
-                        document.getElementById(d.id).style.left = d.pos + 'px';
+            let rankCounter = 1;
 
-                        if (d.pos >= finishPos) {
-                            winner = d.name;
-                            clearInterval(interval);
-                            resultDiv.innerHTML = `🎉 🎉 ${winner} đã chiến thắng! 🎉 🎉`;
-                            startBtn.disabled = false;
+            function animate() {
+                if (!isRacing) return;
+
+                let allFinished = true;
+
+                ducks.forEach(duck => {
+                    if (!duck.finished) {
+                        allFinished = false;
+                        // Mô phỏng tốc độ ngẫu nhiên hồi hộp (tăng tốc / hụt hơi nhẹ)
+                        let acceleration = (Math.random() - 0.45) * 0.4;
+                        duck.speed += acceleration;
+                        
+                        if (duck.speed < 1.5) duck.speed = 1.5;
+                        if (duck.speed > duck.maxSpeed) duck.speed = duck.maxSpeed;
+
+                        duck.x += duck.speed;
+
+                        if (duck.x >= finishLineX) {
+                            duck.x = finishLineX;
+                            duck.finished = true;
+                            duck.finishRank = rankCounter++;
+                            if (rankCounter === 2) {
+                                // Người đầu tiên về đích chính là quán quân!
+                                showWinner(duck.name);
+                            }
                         }
                     }
                 });
-            }, 50);
+
+                drawScene();
+
+                if (!allFinished) {
+                    animationFrameId = requestAnimationFrame(animate);
+                } else {
+                    isRacing = false;
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(animate);
         }
+
+        function showWinner(winnerName) {
+            isRacing = false;
+            cancelAnimationFrame(animationFrameId);
+            document.getElementById('winnerText').innerText = `🎉 ${winnerName} 🎉`;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('setupPanel').style.opacity = '1';
+            document.getElementById('setupPanel').style.pointerEvents = 'auto';
+            initDucks();
+        }
+
+        // Khởi tạo ban đầu khi tải trang
+        window.onload = function() {
+            initDucks();
+        };
     </script>
 </body>
 </html>
