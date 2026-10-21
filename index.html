@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Đua Vịt 🦆🏁</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f0f8ff; margin: 20px; }
+        #track { width: 80%; max-width: 800px; margin: 20px auto; background: #e0f7fa; border: 3px solid #00acc1; border-radius: 10px; padding: 10px; position: relative; }
+        .lane { height: 60px; border-bottom: 2px dashed #b2ebf2; position: relative; display: flex; align-items: center; }
+        .lane:last-child { border-bottom: none; }
+        .duck { position: absolute; left: 0; font-size: 35px; transition: left 0.1s linear; user-select: none; }
+        .finish-line { position: absolute; right: 20px; top: 0; bottom: 0; width: 10px; background: repeating-linear-gradient(0deg, #000, #000 10px, #fff 10px, #fff 20px); }
+        button { padding: 12px 24px; font-size: 18px; background-color: #ffb74d; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background-color: #ffa726; }
+        #result { margin-top: 20px; font-size: 22px; font-weight: bold; color: #d84315; }
+    </style>
+</head>
+<body>
+
+    <h1>🦆 Game Đua Vịt 🏁</h1>
+    <p>Bấm nút bắt đầu để xem chú vịt nào về đích trước nhé!</p>
+    
+    <button id="startBtn" onclick="startRace()">Bắt đầu đua!</button>
+    
+    <div id="track">
+        <div class="finish-line"></div>
+        <div class="lane"><span class="duck" id="duck1">🦆1️⃣</span></div>
+        <div class="lane"><span class="duck" id="duck2">🦆2️⃣</span></div>
+        <div class="lane"><span class="duck" id="duck3">🦆3️⃣</span></div>
+        <div class="lane"><span class="duck" id="duck4">🦆4️⃣</span></div>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        function startRace() {
+            const ducks = [
+                { id: 'duck1', name: 'Vịt 1', pos: 0 },
+                { id: 'duck2', name: 'Vịt 2', pos: 0 },
+                { id: 'duck3', name: 'Vịt 3', pos: 0 },
+                { id: 'duck4', name: 'Vịt 4', pos: 0 }
+            ];
+
+            const startBtn = document.getElementById('startBtn');
+            const resultDiv = document.getElementById('result');
+            
+            startBtn.disabled = true;
+            resultDiv.innerHTML = 'Đang đua... 🏁';
+
+            // Reset vị trí
+            ducks.forEach(d => {
+                document.getElementById(d.id).style.left = '0px';
+            });
+
+            const finishPos = document.getElementById('track').clientWidth - 70;
+            let winner = null;
+
+            const interval = setInterval(() => {
+                ducks.forEach(d => {
+                    if (!winner) {
+                        // Tăng tốc độ ngẫu nhiên
+                        d.pos += Math.random() * 8 + 2;
+                        document.getElementById(d.id).style.left = d.pos + 'px';
+
+                        if (d.pos >= finishPos) {
+                            winner = d.name;
+                            clearInterval(interval);
+                            resultDiv.innerHTML = `🎉 🎉 ${winner} đã chiến thắng! 🎉 🎉`;
+                            startBtn.disabled = false;
+                        }
+                    }
+                });
+            }, 50);
+        }
+    </script>
+</body>
+</html>
